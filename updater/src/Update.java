@@ -96,6 +96,7 @@ public class Update extends TimerTask {
             conDBA.close();
             conMan.close();
         } catch (SQLException e) {
+            e.printStackTrace();
             LOGGER.severe("Unable to establish connections.");
         }
     }
