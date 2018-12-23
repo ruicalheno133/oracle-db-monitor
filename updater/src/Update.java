@@ -20,25 +20,33 @@ public class Update extends TimerTask {
     private int log_number;
 
     private final String selectStatus = "SELECT ((sysdate - i.startup_time ) * 24 * 60) AS \"UPTIME\", "
-                                      + "i.database_type, "
-                                      + "d.name AS \"DATABASE_NAME\", "
-                                      + "i.instance_name, "
-                                      + "c.name AS \"CONTAINERS_NAME\", "
-                                      + "d.platform_name, "
-                                      + "i.thread#, "
-                                      + "i.archiver "
-                                      + "FROM V$instance i, V$database d, V$containers c";
+            + "i.database_type, "
+            + "d.name AS \"DATABASE_NAME\", "
+            + "i.instance_name, "
+            + "c.name AS \"CONTAINERS_NAME\", "
+            + "d.platform_name, "
+            + "i.thread#, "
+            + "i.archiver "
+            + "FROM V$instance i, V$database d, V$containers c";
 
     private final String selectCPU = "SELECT t1.VALUE AS NUM_CPUS,"
-                                   + "t2.value AS IDLE_TIME,"
-                                   + "t3.value AS BUSY_TIME,"
-                                   + "t4.value AS IOWAIT_TIME,"
-                                   + "((t3.value/(t3.value+t2.value))*100) AS USED_PERCENT"
-                                   + "FROM V$OSSTAT t1, V$OSSTAT t2, V$OSSTAT t3, V$OSSTAT t4"
-                                   + "WHERE t1.STAT_NAME = 'NUM_CPUS' "
-                                   + "AND t2.STAT_NAME = 'IDLE_TIME'"
-                                   + "AND t3.STAT_NAME='BUSY_TIME'"
-                                   + "AND t4.STAT_NAME='IOWAIT_TIME'";
+            + "t2.value AS IDLE_TIME,"
+            + "t3.value AS BUSY_TIME,"
+            + "t4.value AS IOWAIT_TIME,"
+            + "((t3.value/(t3.value+t2.value))*100) AS USED_PERCENT "
+            + "FROM V$OSSTAT t1, V$OSSTAT t2, V$OSSTAT t3, V$OSSTAT t4 "
+            + "WHERE t1.STAT_NAME = 'NUM_CPUS' "
+            + "AND t2.STAT_NAME = 'IDLE_TIME' "
+            + "AND t3.STAT_NAME='BUSY_TIME' "
+            + "AND t4.STAT_NAME='IOWAIT_TIME'";
+
+    private final String selectMemory = "SELECT total.TOTAL_SIZE, "
+            + "free.FREE_SIZE, "
+            + "total.TOTAL_SIZE - free.FREE_SIZE USED, "
+            + "((total.TOTAL_SIZE - free.FREE_SIZE) / total.TOTAL_SIZE) * 100 USED_PERCENT "
+            + "FROM (select sum(value)/1024/1024 TOTAL_SIZE from v$sga) total, "
+            + "(select sum(bytes)/1024/1024 FREE_SIZE from v$sgastat "
+            + "where name like '%free memory%') free";
 
     /**
      * Cria uma instancia da class update.
@@ -80,7 +88,8 @@ public class Update extends TimerTask {
             LOGGER.info("\tEstablished DBA and Manager connections.");
 
             populateStatus(conDBA, conMan);
-            //populateCPU(conDBA, conMan);
+            populateCPU(conDBA, conMan);
+            populateMemory(conDBA, conMan);
 
             LOGGER.info("\tClosed DBA and Manager connections.");
 
@@ -112,15 +121,15 @@ public class Update extends TimerTask {
 
             while (resultSet.next()) {
                 values.append("(null,")
-                    .append(resultSet.getString(1) + ",")
-                    .append(PLICAS + resultSet.getString(2) + PLICASV)
-                    .append(PLICAS + resultSet.getString(3) + PLICASV)
-                    .append(PLICAS + resultSet.getString(4) + PLICASV)
-                    .append(PLICAS + resultSet.getString(5) + PLICASV)
-                    .append(PLICAS + resultSet.getString(6) + PLICASV)
-                    .append(resultSet.getString(7) + ",")
-                    .append(PLICAS + resultSet.getString(8) + PLICASV)
-                    .append("CURRENT_TIMESTAMP)");
+                        .append(resultSet.getString(1) + ",")
+                        .append(PLICAS + resultSet.getString(2) + PLICASV)
+                        .append(PLICAS + resultSet.getString(3) + PLICASV)
+                        .append(PLICAS + resultSet.getString(4) + PLICASV)
+                        .append(PLICAS + resultSet.getString(5) + PLICASV)
+                        .append(PLICAS + resultSet.getString(6) + PLICASV)
+                        .append(resultSet.getString(7) + ",")
+                        .append(PLICAS + resultSet.getString(8) + PLICASV)
+                        .append("CURRENT_TIMESTAMP)");
             }
 
             LOGGER.info("Data Inserted");
@@ -148,7 +157,26 @@ public class Update extends TimerTask {
             final Statement statementDBA = conDBA.createStatement();
             final Statement statementMan = conMan.createStatement();
 
+            LOGGER.info("\tGathering data for CPU TABLE.");
             ResultSet resultSet = statementDBA.executeQuery(selectCPU);
+            StringBuilder values = new StringBuilder();
+            LOGGER.info("Data Gathered");
+
+            LOGGER.info("Inserting data into CPU TABLE.");
+
+            while (resultSet.next()) {
+                values.append("(null,")
+                        .append(resultSet.getString(1) + ",")
+                        .append(resultSet.getString(2) + ",")
+                        .append(resultSet.getString(3) + ",")
+                        .append(resultSet.getString(4) + ",")
+                        .append(resultSet.getString(5) + ",")
+                        .append("null)");
+            }
+
+            LOGGER.info("Data Inserted");
+
+            statementMan.executeUpdate("INSERT INTO CPU VALUES " + values.toString());
 
             statementDBA.close();
             statementMan.close();
@@ -169,7 +197,25 @@ public class Update extends TimerTask {
             final Statement statementDBA = conDBA.createStatement();
             final Statement statementMan = conMan.createStatement();
 
-            ResultSet resultSet = statementDBA.executeQuery(selectStatus);
+            LOGGER.info("\tGathering data for MEMORY TABLE.");
+            ResultSet resultSet = statementDBA.executeQuery(selectMemory);
+            StringBuilder values = new StringBuilder();
+            LOGGER.info("Data Gathered");
+
+            LOGGER.info("Inserting data into MEMORY TABLE.");
+
+            while (resultSet.next()) {
+                values.append("(null,")
+                        .append(resultSet.getString(1) + ",")
+                        .append(resultSet.getString(2) + ",")
+                        .append(resultSet.getString(3) + ",")
+                        .append(resultSet.getString(4) + ",")
+                        .append("null)");
+            }
+
+            LOGGER.info("Data Inserted");
+
+            statementMan.executeUpdate("INSERT INTO MEMORY VALUES " + values.toString());
 
             statementDBA.close();
             statementMan.close();

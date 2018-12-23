@@ -78,3 +78,11 @@ FROM dba_roles;
 SELECT t1.VALUE AS NUM_CPUS, t2.value AS IDLE_TIME , t3.value AS BUSY_TIME, t4.value AS IOWAIT_TIME, ((t3.value/(t3.value+t2.value))*100) AS USED_PERCENT
 FROM V$OSSTAT t1, V$OSSTAT t2, V$OSSTAT t3, V$OSSTAT t4
 WHERE t1.STAT_NAME = 'NUM_CPUS' AND t2.STAT_NAME = 'IDLE_TIME' AND t3.STAT_NAME='BUSY_TIME' AND t4.STAT_NAME='IOWAIT_TIME';
+
+/* MEMORY */
+
+select total.TOTAL_SIZE,
+      free.FREE_SIZE,
+      total.TOTAL_SIZE - free.FREE_SIZE USED,
+      ((total.TOTAL_SIZE - free.FREE_SIZE) / total.TOTAL_SIZE) * 100 USED_PERCENT
+FROM (select sum(value)/1024/1024 TOTAL_SIZE from v$sga) total, (select sum(bytes)/1024/1024 FREE_SIZE from v$sgastat where name like '%free memory%') free;
