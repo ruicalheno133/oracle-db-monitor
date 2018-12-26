@@ -21,8 +21,8 @@ FROM V$instance i,
 
 /* TABLESPACES */
 
-SELECT ts.tablespace_name,
-       tv.TS#, 
+SELECT tv.TS#, 
+	   ts.tablespace_name,
        tsm.tablespace_size,
        tsm.tablespace_size - used_space AS "FREE_SPACE",
        tsm.used_percent,
@@ -66,12 +66,35 @@ SELECT user_id,
        last_login
 FROM dba_users;
 
+/* USER TABLESPACES */
+
+SELECT t.ts#,
+	   u.username, 
+	   u.user_id, 
+	   q.bytes,
+	   q.max_bytes
+FROM DBA_TS_QUOTAS q, 
+	 DBA_USERS u, 
+	 v$tablespace t
+WHERE q.username = u.username 
+  AND q.tablespace_name = t.name;
+
 /* ROLES */
 
 SELECT role_id,
        role,
        authentication_type
 FROM dba_roles;
+
+/* USER_ROLE */
+
+SELECT u.user_id, 
+	   r.ROLE_ID 
+FROM DBA_ROLE_PRIVS ur, 
+	 DBA_USERS u,
+	 DBA_ROLES r
+WHERE ur.grantee = u.username 
+  	 AND ur.granted_role = r.role;
 
 /* CPU */
 
