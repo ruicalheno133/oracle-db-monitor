@@ -69,13 +69,12 @@ public class Update extends TimerTask {
             "ts.status, " +
             "ts.contents, " +
             "ts.segment_space_management " +
-            "FROM DBA_TABLESPACES ts, " +
-            "DBA_TABLESPACE_USAGE_METRICS tsm, " +
-            "V$TABLESPACE tv " +
-            "WHERE ts.tablespace_name = tsm.tablespace_name AND tv.name=ts.tablespace_name";
+            "FROM DBA_TABLESPACES ts " +
+            "JOIN V$TABLESPACE tv ON tv.name = ts.tablespace_name " +
+            "LEFT JOIN DBA_TABLESPACE_USAGE_METRICS tsm ON ts.tablespace_name = tsm.tablespace_name";
 
-    private final String selectUserTablespaces = "SELECT t.ts#, " +
-            "u.user_id, " +
+    private final String selectUserTablespaces = "SELECT u.user_id, " +
+            "t.ts#, " +
             "q.bytes, " +
             "q.max_bytes " +
             "FROM DBA_TS_QUOTAS q," +
@@ -151,9 +150,9 @@ public class Update extends TimerTask {
             populateMemory(conDBA, conMan);
             populateUsers(conDBA, conMan);
             populateTablespaces(conDBA, conMan);
-            //joinUserTablespaces(conDBA, conMan);
+            joinUserTablespaces(conDBA, conMan);
             populateRoles(conDBA, conMan);
-            //joinUserRoles(conDBA, conMan);
+            joinUserRoles(conDBA, conMan);
             populateDatafiles(conDBA, conMan);
 
             LOGGER.info("\tClosed DBA and Manager connections.");

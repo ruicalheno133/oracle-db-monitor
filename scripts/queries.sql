@@ -74,8 +74,8 @@ SELECT t.ts#,
 	   q.bytes,
 	   q.max_bytes
 FROM DBA_TS_QUOTAS q, 
-	 DBA_USERS u, 
-	 v$tablespace t
+	 DBA_USERS u
+LEFT JOIN v$tablespace t
 WHERE q.username = u.username 
   AND q.tablespace_name = t.name;
 
@@ -109,3 +109,28 @@ select total.TOTAL_SIZE,
       total.TOTAL_SIZE - free.FREE_SIZE USED,
       ((total.TOTAL_SIZE - free.FREE_SIZE) / total.TOTAL_SIZE) * 100 USED_PERCENT
 FROM (select sum(value)/1024/1024 TOTAL_SIZE from v$sga) total, (select sum(bytes)/1024/1024 FREE_SIZE from v$sgastat where name like '%free memory%') free;
+
+/* EASY DROPS */
+
+drop table cpu; 
+drop table memory;
+drop table status;
+drop table "TABLESPACE" cascade constraints;
+drop table "ROLE" cascade constraints;
+drop table "USER" cascade constraints;
+drop table datafile;
+drop table user_role;
+drop table user_tablespace;
+drop table sql_commands;
+
+drop sequence cpu_seq;
+drop sequence datafile_seq;
+drop sequence user_seq;
+drop sequence role_seq;
+drop sequence tablespace_seq;
+drop sequence datafile_seq;
+drop sequence user_role_seq;
+drop sequence sql_commands_seq;
+drop sequence user_tablespace_seq;
+drop sequence memory_seq;
+drop sequence status_seq;
