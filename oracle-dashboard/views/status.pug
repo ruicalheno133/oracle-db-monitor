@@ -1,0 +1,7 @@
+extends layout
+
+block content 
+    each s in status
+        p status_key: #{s.status_key}
+        p uptime: #{s.uptime}
+        p database_name: #{s.database_name}

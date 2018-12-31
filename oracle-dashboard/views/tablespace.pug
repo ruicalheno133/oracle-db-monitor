@@ -1,0 +1,30 @@
+extends layout
+
+block content
+    .w3-row
+      .w3-col.m2.w3-theme-d3.sidebar
+        .w3-bar-block
+          img(src="/images/dba_dash_logo.png" style="width: 30%").w3-margin
+          a(href="#").w3-bar-item.w3-button Dashboard
+          a(href="/tablespaces").w3-bar-item.w3-button Tables
+          a(href="#").w3-bar-item.w3-button Views 
+          a(href="#").w3-bar-item.w3-button Indexes
+      .w3-col.m10
+            header.w3-container.w3-border-bottom
+                h1 Tablespace #{tablespace.tablespace_name}
+            .w3-container.w3-section
+                table.w3-table.w3-border.w3-bordered.w3-hoverable
+                    tr
+                        th Tablespace # 
+                        th Name
+                        th Size (Mb)
+                        th Status
+                        tr 
+                            td= tablespace.tablespace_id
+                            td= tablespace.tablespace_name
+                            if (tablespace.tablespace_size == null) 
+                                td Unknown
+                            else 
+                                td= tablespace.tablespace_size
+                            td
+                                .w3-text-green= tablespace.status

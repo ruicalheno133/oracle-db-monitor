@@ -1,0 +1,51 @@
+extends layout
+
+block content
+    .w3-row
+      .w3-col.m2.w3-theme-d3.sidebar
+        .w3-bar-block
+          img(src="/images/dba_dash_logo.png" style="width: 30%").w3-margin
+          a(href="#").w3-bar-item.w3-button Dashboard
+          a(href="/tablespaces").w3-bar-item.w3-button Tablespaces
+          a(href="#").w3-bar-item.w3-button Views 
+          a(href="#").w3-bar-item.w3-button Indexes
+      .w3-col.m10
+        .w3-row
+          .w3-col.m4
+            .w3-card-4.w3-white.w3-margin
+              header.w3-container 
+                h6 
+                  b Database Info
+                table.w3-table
+                  tr
+                    td Name
+                    td= status.database_name
+                  tr
+                    td Platform 
+                    td= status.platform_name
+                  tr
+                    td Uptime 
+                    td #{Math.round(status.uptime)} minutes
+                  tr
+                    td Archiver
+                    td= status.archiver
+            .w3-card-4.w3-white.w3-margin
+              header.w3-container 
+                h6 
+                  b Storage
+                div(id="piechart")
+          .w3-col.m8.graph
+            .w3-card-4.w3-white.w3-margin
+              header.w3-container
+                h6 
+                  b Users Connected
+                div(id="chart")
+        .w3-row
+          .w3-col.m4
+ 
+          .w3-col.m3
+          .w3-col.m4
+            .w3-card-4.w3-white.w3-margin
+              header.w3-container 
+                h6 SQL Errors
+          .w3-col.m3

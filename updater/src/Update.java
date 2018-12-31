@@ -17,7 +17,7 @@ public class Update extends TimerTask {
     private final char PLICAS = '\'';
     private final String PLICASV = "\',";
 
-    private int log_number;
+    private int update_id = 1;
 
     private final String selectStatus = "SELECT ((sysdate - i.startup_time ) * 24 * 60) AS \"UPTIME\", "
             + "i.database_type, "
@@ -125,11 +125,11 @@ public class Update extends TimerTask {
      */
     @Override
     public void run() {
-        LOGGER.info("STARTED RUN #" + log_number);
+        LOGGER.info("STARTED UPDATE #" + update_id);
         populate();
-        LOGGER.info("ENDEND RUN #" + log_number);
+        LOGGER.info("ENDEND UPDATE #" + update_id);
 
-        log_number++;
+        update_id++;
     }
 
     /**
@@ -193,7 +193,7 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(5) + ',')
                         .append(resultSet.getString(6) + ",")
                         .append(PLICAS + resultSet.getString(7) + PLICASV)
-                        .append("null)");
+                        .append("null," + update_id + ")");
 
                 statementMan.executeUpdate("INSERT INTO DATAFILE VALUES " + values.toString());
             }
@@ -233,7 +233,7 @@ public class Update extends TimerTask {
                 values.append("(null,")
                         .append(resultSet.getString(1) + ",")
                         .append(resultSet.getString(2) + ',')
-                        .append("null)");
+                        .append("null," + update_id + ")");
                 statementMan.executeUpdate("INSERT INTO USER_ROLE VALUES " + values.toString());
             }
 
@@ -272,7 +272,7 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(1) + ",")
                         .append(PLICAS + resultSet.getString(2) + PLICASV)
                         .append(PLICAS + resultSet.getString(3) + PLICASV)
-                        .append("null)");
+                        .append("null," + update_id + ")");
 
                 statementMan.executeUpdate("INSERT INTO ROLE VALUES " + values.toString());
             }
@@ -314,7 +314,7 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(2) + ',')
                         .append(resultSet.getString(3) + ',')
                         .append(resultSet.getString(4) + ',')
-                        .append("null)");
+                        .append("null," + update_id + ")");
                 statementMan.executeUpdate("INSERT INTO USER_TABLESPACE VALUES " + values.toString());
             }
 
@@ -359,7 +359,7 @@ public class Update extends TimerTask {
                         .append(PLICAS + resultSet.getString(7) + PLICASV)
                         .append(PLICAS + resultSet.getString(8) + PLICASV)
                         .append(PLICAS + resultSet.getString(9) + PLICASV)
-                        .append("null)");
+                        .append("null," + update_id + ")");
 
                 statementMan.executeUpdate("INSERT INTO \"TABLESPACE\" VALUES " + values.toString());
             }
@@ -410,7 +410,7 @@ public class Update extends TimerTask {
                 else values.append("null,");
                 if (resultSet.getString(9) != null) values.append("TO_TIMESTAMP_TZ(" + PLICAS + resultSet.getString(9) + PLICASV + "'YYYY-MM-DD HH24:MI:SS.FF TZR'),");
                 else values.append("null,");
-                        values.append("null)");
+                        values.append("null," + update_id + ")");
                 statementMan.executeUpdate("INSERT INTO \"USER\" VALUES " + values.toString());
             }
 
@@ -419,6 +419,7 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
+            e.printStackTrace();
             LOGGER.severe("Unable to populate USER table.");
         }
     }
@@ -452,7 +453,7 @@ public class Update extends TimerTask {
                         .append(PLICAS + resultSet.getString(6) + PLICASV)
                         .append(resultSet.getString(7) + ",")
                         .append(PLICAS + resultSet.getString(8) + PLICASV)
-                        .append("CURRENT_TIMESTAMP)");
+                        .append("null," + update_id + ")");
             }
 
             LOGGER.info("Data Inserted");
@@ -492,7 +493,7 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(3) + ",")
                         .append(resultSet.getString(4) + ",")
                         .append(resultSet.getString(5) + ",")
-                        .append("null)");
+                        .append("null," + update_id + ")");
             }
 
             LOGGER.info("Data Inserted");
@@ -531,7 +532,7 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(2) + ",")
                         .append(resultSet.getString(3) + ",")
                         .append(resultSet.getString(4) + ",")
-                        .append("null)");
+                        .append("null," + update_id + ")");
             }
 
             LOGGER.info("Data Inserted");

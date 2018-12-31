@@ -3,3 +3,4 @@ updater/.clover
 updater/out
 updater/log.xml
 *.iml
+oracle-dashboard/node_modules
