@@ -74,4 +74,48 @@ router.get('/tablespaces/:id', function(req, res) {
   })
 });
 
+router.get('/datafiles', function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_datafile')
+    .then(dados=>{
+      res.render('datafiles',{datafiles :dados.data.items})
+    })
+    .catch(err => {
+      res.jsonp(err)
+      res.end()
+    })
+});
+
+router.get('/datafiles/:id',function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_datafile/?q={"datafile_id":' + req.params.id+ '}')
+    .then(dados => {
+      res.render('datafile',{datafile: dados.data.items[0]})
+    })
+    .catch(err => {
+      res.jsonp(err)
+      res.end()
+    })
+});
+
+router.get('/roles', function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_role')
+    .then(dados=>{
+      res.render('roles',{roles :dados.data.items})
+    })
+    .catch(err => {
+      res.jsonp(err)
+      res.end()
+    })
+});
+
+router.get('/roles/:id',function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_role/?q={"role_id":' + req.params.id+ '}')
+    .then(dados => {
+      res.render('role',{role: dados.data.items[0]})
+    })
+    .catch(err => {
+      res.jsonp(err)
+      res.end()
+    })
+});
+
 module.exports = router;

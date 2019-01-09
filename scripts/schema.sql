@@ -4,13 +4,15 @@
  */
 
 CREATE TABLESPACE manager_table
-DATAFILE  '\u01\app\oracle\oradata\orcl12\orcl\manager_tables_01.dbf'
+DATAFILE '\u01\app\oracle\oradata\orcl12\orcl\manager_tables_01.dbf'
 SIZE 100M;
+
 
 CREATE TEMPORARY TABLESPACE manager_temp
 TEMPFILE '\u01\app\oracle\oradata\orcl12\orcl\manager_temp.dbf'
-SIZE 100M
+SIZE 100M REUSE
 AUTOEXTEND ON;
+
 
 CREATE USER manager
 IDENTIFIED BY pass

@@ -385,9 +385,129 @@ CREATE OR REPLACE VIEW CUR_STATUS
 AS SELECT * FROM STATUS ORDER BY STATUS_KEY DESC FETCH FIRST 1 ROWS ONLY;
 
 CREATE OR REPLACE VIEW CUR_JOIN_USER_TABLESPACE 
-AS SELECT * FROM CUR_USER_TABLESPACE cut, USER u , TABLESPACE t 
-WHERE cut.USER_KEY = u.USER_KEY AND cut.TABLESPACE_KEY = t.TABLESPACE_KEY;
+AS SELECT * FROM CUR_USER_TABLESPACE cut 
+    JOIN "USER" u ON cut.USER_KEY = u.USER_KEY 
+    JOIN "TABLESPACE" t ON cut.TABLESPACE_KEY = t.TABLESPACE_KEY;
 
-CREATE OR REPLACE VIEW CUR_JOIN_USER_ROLE 
-AS SELECT * FROM CUR_USER_ROLE cur, USER u , ROLE r 
+CREATE OR REPLACE VIEW CUR_JOIN_USER_ROLE
+AS SELECT * FROM CUR_USER_ROLE cur, "USER" u , "ROLE" r 
 WHERE cur.USER_KEY = u.USER_KEY AND cur.ROLE_KEY = r.ROLE_KEY;
+
+/* ENABLE REST SERVICES */
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_ROLE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_role',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_MEMORY',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_memory',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_CPU',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_cpu',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_DATAFILE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_datafile',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_STATUS',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_status',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_TABLESPACE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_tablespace',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_USER',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_user',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_USER_ROLE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_user_role',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_USER_TABLESPACE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_user_tablespace',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/

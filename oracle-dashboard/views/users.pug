@@ -1,14 +1,6 @@
 extends layout
 
 block content
-    .w3-row
-      .w3-col.m2.w3-theme-d3.sidebar
-        .w3-bar-block
-          img(src="/images/dba_dash_logo.png" style="width: 30%").w3-margin
-          a(href="#").w3-bar-item.w3-button Dashboard
-          a(href="/tablespaces").w3-bar-item.w3-button Tablespaces
-          a(href="#").w3-bar-item.w3-button Views 
-          a(href="#").w3-bar-item.w3-button Indexes
       .w3-col.m10
         header.w3-container.w3-border-bottom
             h1 Users
@@ -22,8 +14,8 @@ block content
                     th Temp Tablespace
                     th Last login
                 each user in users
-                    a(href="/users/" + user.user_id)
-                        tr 
+                    a(href="/users/" + user.user_id) 
+                        tr
                             td= user.user_id
                             td= user.username
                             td= user.account_status

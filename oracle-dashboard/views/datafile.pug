@@ -1,0 +1,22 @@
+extends layout
+
+block content
+      .w3-col.m10
+        header.w3-container.w3-border-bottom
+            h1 Datafile #{datafile.datafile_name}
+        .w3-container.w3-section
+            table.w3-table.w3-border.w3-bordered.w3-hoverable
+                tr
+                    th ID 
+                    th Datafile Name
+                    th Status
+                    th Size
+                    th Max Size
+                    th % Occupied
+                tr 
+                    td= datafile.datafile_id
+                    td= datafile.datafile_name
+                    td= datafile.status
+                    td= datafile.size
+                    td= datafile.max_size
+                    td #{Math.round((datafile.size / datafile.max_size) * 100)} %
