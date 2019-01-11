@@ -1,11 +1,13 @@
 extends layout
 
 block content
-      .w3-col.m10
+      .w3-col.m10(style="height: 80%;")
         header.w3-container.w3-border-bottom
-            h1 Datafiles
-        .w3-container.w3-section
-            table.w3-table.w3-border.w3-bordered.w3-hoverable
+            h1 
+                i.fas.fa-copy
+                |  Datafiles
+        .w3-container.w3-section.w3-border-bottom(style="overflow: scroll;height: 100%;")
+            table.w3-table.w3-bordered.w3-hoverable(style=" height: 100%; width: 100%;")
                 tr
                     th ID 
                     th Datafile Name
@@ -13,6 +15,7 @@ block content
                     th Size
                     th Max Size
                     th % Occupied
+                    th
                 each datafile in datafiles
                     a(href="/datafiles/" + datafile.datafile_id)
                         tr 
@@ -22,3 +25,6 @@ block content
                             td= datafile.size
                             td= datafile.max_size
                             td #{Math.round((datafile.size / datafile.max_size) * 100)} %
+                            td
+                                a(href="/datafiles/" + datafile.datafile_id)
+                                    i.fas.fa-eye

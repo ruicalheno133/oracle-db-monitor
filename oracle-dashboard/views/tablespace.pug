@@ -2,21 +2,44 @@ extends layout
 
 block content
       .w3-col.m10
-            header.w3-container.w3-border-bottom
-                h1 Tablespace #{tablespace.tablespace_name}
-            .w3-container.w3-section
-                table.w3-table.w3-border.w3-bordered.w3-hoverable
-                    tr
-                        th Tablespace # 
-                        th Name
-                        th Size (Mb)
-                        th Status
-                        tr 
-                            td= tablespace.tablespace_id
-                            td= tablespace.tablespace_name
-                            if (tablespace.tablespace_size == null) 
-                                td Unknown
-                            else 
-                                td= tablespace.tablespace_size
-                            td
-                                .w3-text-green= tablespace.status
+        header.w3-container.w3-border-bottom
+            h1 
+                i.fas.fa-table
+                |  Tablespace #{tablespace.tablespace_name}
+        .w3-container.w3-section
+            .w3-col.m4
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Tablespace Info
+                        table.w3-table
+                            tr
+                                td Name
+                                td= tablespace.tablespace_name
+                            tr
+                                td Size (Mb)
+                                if (tablespace.tablespace_size == null) 
+                                    td Unknown
+                                else 
+                                    td= tablespace.tablespace_size
+                            tr
+                                td Free Space
+                                td= tablespace.free_space
+                            tr
+                                td Status
+                                td
+                                    .w3-text-green= tablespace.status
+            .w3-col.m8
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Tablespace's User
+                    .tablespace_user_table
+            .w3-col.m12 
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Tablespace's Datafiles
+                    .tablespace_datafiles_table
+                        
+

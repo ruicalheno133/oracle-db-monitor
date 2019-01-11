@@ -1,0 +1,15 @@
+table.w3-table.w3-border.w3-bordered.w3-hoverable
+    tr
+        th Datafile
+        th Size (Mb)
+        th Max Size (Mb)
+        th
+    for datafile in datafiles
+        tr 
+            td= datafile.datafile_name 
+            td= datafile.size 
+            td= datafile.max_size
+            td
+                a(href="/datafiles/" + datafile.datafile_id)
+                    i.fas.fa-eye
+                

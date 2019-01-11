@@ -3,14 +3,25 @@ extends layout
 block content
       .w3-col.m10
         header.w3-container.w3-border-bottom
-            h1 Role #{role.role}
+            h1 
+                i.fas.fa-check-circle
+                |  Role #{role.role}
         .w3-container.w3-section
-            table.w3-table.w3-border.w3-bordered.w3-hoverable
-                tr
-                    th ID 
-                    th Role Name
-                    th Authentication Type
-                tr 
-                    td= role.role_id
-                    td= role.role
-                    td= role.authentication_type
+            .w3-col.m12
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Role Info
+                        table.w3-table
+                            tr
+                                td Name
+                                td= role.role
+                            tr
+                                td Authentication Type
+                                td= role.authentication_type
+            .w3-col.m12 
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Granted to
+                        .role_user_table

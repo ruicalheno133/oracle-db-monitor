@@ -1,16 +1,19 @@
 extends layout
 
 block content
-      .w3-col.m10
+      .w3-col.m10(style="height: 80%;")
         header.w3-container.w3-border-bottom
-            h1 Tablespaces
-        .w3-container.w3-section
-            table.w3-table.w3-border.w3-bordered.w3-hoverable
+            h1 
+                i.fas.fa-table
+                |  Tablespaces
+        .w3-container.w3-section.w3-border-bottom(style="overflow: scroll;height: 100%;")
+            table.w3-table.w3-bordered.w3-hoverable(style=" height: 100%; width: 100%;")
                 tr
                     th Tablespace # 
                     th Name
                     th Size (Mb)
                     th Status
+                    th
                 each tablespace in tablespaces
                     tr 
                         td= tablespace.tablespace_id
@@ -21,3 +24,6 @@ block content
                             td= tablespace.tablespace_size
                         td
                             .w3-text-green= tablespace.status
+                        td
+                            a(href="/tablespaces/" + tablespace.tablespace_id)
+                                i.fas.fa-eye

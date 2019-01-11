@@ -22,9 +22,9 @@ FROM V$instance i,
 /* TABLESPACES */
 
 SELECT tv.TS#, 
-	   ts.tablespace_name,
-       tsm.tablespace_size,
-       tsm.tablespace_size - used_space AS "FREE_SPACE",
+     ts.tablespace_name,
+       tsm.tablespace_size * ts.block_size / 1024 / 1024 AS "TABLESPACE_SIZE",
+       ((tsm.tablespace_size * ts.block_size / 1024 / 1024) - (used_space *ts.block_size / 1024 / 1024)) AS "FREE_SPACE",
        tsm.used_percent,
        ts.max_size,
        ts.status,

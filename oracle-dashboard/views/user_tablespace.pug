@@ -1,0 +1,12 @@
+table.w3-table.w3-border.w3-bordered.w3-hoverable
+    tr
+        th Tablespace 
+        th Quota
+        th Used (Mb)
+    for entrada in ut
+        th= entrada.tablespace_name 
+        if (entrada.quota == -1)
+            th Unlimited
+        else
+            th= entrada.quota
+        th= entrada.used_quota

@@ -3,20 +3,27 @@ extends layout
 block content
       .w3-col.m10
         header.w3-container.w3-border-bottom
-            h1 Datafile #{datafile.datafile_name}
+            h1 
+                i.fas.fa-file
+                |  Datafile #{datafile.datafile_name}
         .w3-container.w3-section
-            table.w3-table.w3-border.w3-bordered.w3-hoverable
-                tr
-                    th ID 
-                    th Datafile Name
-                    th Status
-                    th Size
-                    th Max Size
-                    th % Occupied
-                tr 
-                    td= datafile.datafile_id
-                    td= datafile.datafile_name
-                    td= datafile.status
-                    td= datafile.size
-                    td= datafile.max_size
-                    td #{Math.round((datafile.size / datafile.max_size) * 100)} %
+            .w3-col.m12
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Datafile Info
+                        table.w3-table
+                            tr 
+                                th Name 
+                                td= datafile.datafile_name
+                            tr 
+                                th falta por mais info
+            .w3-col.m12 
+                .w3-card-4.w3-white.w3-margin
+                    header.w3-container 
+                        h6 
+                            b Datafile Usage
+                    .datafile_pie
+
+
+

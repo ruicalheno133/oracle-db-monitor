@@ -1,0 +1,17 @@
+table.w3-table.w3-border.w3-bordered.w3-hoverable
+    tr
+        th User
+        th Quota
+        th Used (Mb)
+        th
+    for entrada in tu
+        tr
+            td= entrada.username 
+            if (entrada.quota < 0)
+                td Unlimited
+            else
+                td= entrada.quota
+            td= entrada.used_quota
+            td
+                a(href="/users/" + entrada.user_id)
+                    i.fas.fa-eye

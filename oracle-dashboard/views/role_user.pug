@@ -1,0 +1,6 @@
+table.w3-table.w3-border.w3-bordered.w3-hoverable
+    .w3-row
+        for user in users
+            .w3-col.m4.w3-center
+                a.w3-button(href="/users/" + user.user_id)
+                    h6= user.username

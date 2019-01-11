@@ -6,8 +6,11 @@ html
     link(rel='stylesheet', href='/stylesheets/c3.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow", rel="stylesheet")
+    link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous")
     script(src="https://d3js.org/d3.v5.min.js")
     script(src='/javascripts/c3.min.js')
+    script(src='/javascripts/jquery-3.3.1.min.js')
+    script(src='/javascripts/user.js')
     script(src='/javascripts/graphs.js')
   body.w3-theme
     w3-row
@@ -16,7 +19,7 @@ html
             img(src="/images/dba_dash_logo.png" style="width: 30%").w3-margin
             a(href="/").w3-bar-item.w3-button Dashboard
             a(href="/users").w3-bar-item.w3-button Users
-            a(href="/tablespaces").w3-bar-item.w3-button Tablespaces
+            a(href="/tablespaces").w3-bar-item.w3-button Tablespaces  
             a(href="/datafiles").w3-bar-item.w3-button Datafiles
             a(href="/roles").w3-bar-item.w3-button Roles
     block content
