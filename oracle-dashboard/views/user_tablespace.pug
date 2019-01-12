@@ -5,7 +5,7 @@ table.w3-table.w3-border.w3-bordered.w3-hoverable
         th Used (Mb)
     for entrada in ut
         th= entrada.tablespace_name 
-        if (entrada.quota == -1)
+        if (entrada.quota < 0)
             th Unlimited
         else
             th= entrada.quota

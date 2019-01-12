@@ -17,7 +17,7 @@ public class Update extends TimerTask {
     private final char PLICAS = '\'';
     private final String PLICASV = "\',";
 
-    private int update_id = 1;
+    private int update_id = 32;
 
     private final String selectStatus = "SELECT ((sysdate - i.startup_time ) * 24 * 60) AS \"UPTIME\", "
             + "i.database_type, "
@@ -62,8 +62,8 @@ public class Update extends TimerTask {
 
     private final String selectTablespaces = "SELECT tv.TS#, " +
             "ts.tablespace_name, " +
-            "tsm.tablespace_size, " +
-            "tsm.tablespace_size - used_space AS \"FREE_SPACE\", " +
+            "tsm.tablespace_size * ts.block_size / 1024 / 1024 AS \"TABLESPACE_SIZE\",\n" +
+            "((tsm.tablespace_size * ts.block_size / 1024 / 1024) - (used_space *ts.block_size / 1024 / 1024)) AS \"FREE_SPACE\"," +
             "tsm.used_percent, " +
             "ts.max_size, " +
             "ts.status, " +
@@ -75,8 +75,8 @@ public class Update extends TimerTask {
 
     private final String selectUserTablespaces = "SELECT u.user_id, " +
             "t.ts#, " +
-            "q.bytes, " +
-            "q.max_bytes " +
+            "q.bytes / 1024 / 1024, " +
+            "q.max_bytes / 1024 / 1024 " +
             "FROM DBA_TS_QUOTAS q," +
             "DBA_USERS u, " +
             "v$tablespace t " +
@@ -87,8 +87,8 @@ public class Update extends TimerTask {
             "vdf.TS#, " +
             "df.file_name, " +
             "df.status, " +
-            "df.bytes / 1024 AS \"SIZE\", " +
-            "df.maxbytes / 1024, " +
+            "df.bytes / 1024 / 1024 AS \"SIZE\", " +
+            "df.maxbytes / 1024 / 1024, " +
             "df.autoextensible " +
             "FROM DBA_DATA_FILES df, v$datafile vdf " +
             "WHERE df.file_name = vdf.\"NAME\"";
@@ -145,6 +145,7 @@ public class Update extends TimerTask {
 
             LOGGER.info("\tEstablished DBA and Manager connections.");
 
+            conMan.setAutoCommit(false);
             populateStatus(conDBA, conMan);
             populateCPU(conDBA, conMan);
             populateMemory(conDBA, conMan);
@@ -154,6 +155,7 @@ public class Update extends TimerTask {
             populateRoles(conDBA, conMan);
             joinUserRoles(conDBA, conMan);
             populateDatafiles(conDBA, conMan);
+            conMan.commit();
 
             LOGGER.info("\tClosed DBA and Manager connections.");
 

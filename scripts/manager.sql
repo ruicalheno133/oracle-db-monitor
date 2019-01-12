@@ -384,14 +384,20 @@ AS SELECT * FROM CPU ORDER BY CPU_KEY DESC FETCH FIRST 1 ROWS ONLY;
 CREATE OR REPLACE VIEW CUR_STATUS
 AS SELECT * FROM STATUS ORDER BY STATUS_KEY DESC FETCH FIRST 1 ROWS ONLY;
 
-CREATE OR REPLACE VIEW CUR_JOIN_USER_TABLESPACE 
-AS SELECT * FROM CUR_USER_TABLESPACE cut 
-    JOIN "USER" u ON cut.USER_KEY = u.USER_KEY 
-    JOIN "TABLESPACE" t ON cut.TABLESPACE_KEY = t.TABLESPACE_KEY;
+CREATE OR REPLACE VIEW  CUR_JOIN_TABLESPACE_DATAFILE
+AS SELECT d.datafile_id, t.tablespace_id, d.datafile_name, d."SIZE", d.max_size
+FROM cur_datafile d, cur_tablespace t 
+WHERE d.tablespace_key = t.tablespace_key;
 
-CREATE OR REPLACE VIEW CUR_JOIN_USER_ROLE
-AS SELECT * FROM CUR_USER_ROLE cur, "USER" u , "ROLE" r 
-WHERE cur.USER_KEY = u.USER_KEY AND cur.ROLE_KEY = r.ROLE_KEY;
+CREATE OR REPLACE VIEW  CUR_JOIN_USER_ROLE
+AS SELECT u.user_id, r.role_id, r.role, u.username
+FROM cur_user u, cur_role r, cur_user_role cur
+WHERE cur.user_key = u.user_key AND cur.role_key = r.role_key;
+
+CREATE OR REPLACE VIEW  CUR_JOIN_USER_TABLESPACE
+AS SELECT cut.used_quota, cut.quota, u.user_id, u.username, t.tablespace_id, t.tablespace_name
+FROM cur_user u, cur_tablespace t, cur_user_tablespace cut
+WHERE cut.user_key = u.user_key AND cut.tablespace_key = t.tablespace_key;
 
 /* ENABLE REST SERVICES */
 
@@ -509,5 +515,53 @@ BEGIN
                        p_object_alias => 'cur_user_tablespace',
                        p_auto_rest_auth => FALSE);
     commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_JOIN_USER_TABLESPACE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_join_user_tablespace',
+                       p_auto_rest_auth => FALSE);
+
+    commit;
+
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_JOIN_USER_ROLE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_join_user_role',
+                       p_auto_rest_auth => FALSE);
+
+    commit;
+
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_JOIN_TABLESPACE_DATAFILE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_join_tablespace_datafile',
+                       p_auto_rest_auth => FALSE);
+
+    commit;
+
 END;
 /

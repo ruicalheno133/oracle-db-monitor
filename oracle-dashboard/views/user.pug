@@ -1,12 +1,12 @@
 extends layout
 
 block content
-      .w3-col.m10
+    .w3-col.m10(style="height:100%;")
         header.w3-container.w3-border-bottom
             h1 
                 i.fas.fa-user 
                 |  User #{user.username}
-        .w3-container.w3-section
+        .w3-container(style="height:90%;")
             .w3-col.m4
                 .w3-card-4.w3-white.w3-margin
                     header.w3-container 
@@ -34,10 +34,10 @@ block content
                         h6 
                             b User's Quota
                     .user_tablespace_table
-            .w3-col.m12 
-                .w3-card-4.w3-white.w3-margin
-                    header.w3-container 
+            .w3-col.m12(style="height:60%;")
+                .w3-card-4.w3-white.w3-margin(style="height:100%;")
+                    header.w3-container
                         h6 
                             b User's Roles
-                        .user_role_table
+                    .user_role_table(style="height:90%; overflow: scroll;")
 
