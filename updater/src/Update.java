@@ -73,6 +73,12 @@ public class Update extends TimerTask {
             "JOIN V$TABLESPACE tv ON tv.name = ts.tablespace_name " +
             "LEFT JOIN DBA_TABLESPACE_USAGE_METRICS tsm ON ts.tablespace_name = tsm.tablespace_name";
 
+    private final String selectUserSessions = "SELECT USER#, " +
+            "SID, " +
+            "STATUS " +
+            "FROM v$session";
+
+
     private final String selectUserTablespaces = "SELECT u.user_id, " +
             "t.ts#, " +
             "q.bytes / 1024 / 1024, " +
@@ -150,6 +156,7 @@ public class Update extends TimerTask {
             populateCPU(conDBA, conMan);
             populateMemory(conDBA, conMan);
             populateUsers(conDBA, conMan);
+            popularUserSessions(conDBA,conMan);
             populateTablespaces(conDBA, conMan);
             joinUserTablespaces(conDBA, conMan);
             populateRoles(conDBA, conMan);
@@ -286,6 +293,36 @@ public class Update extends TimerTask {
         } catch (SQLException e) {
             e.printStackTrace();
             LOGGER.severe("Unable to populate ROLE table.");
+        }
+    }
+
+    private void popularUserSessions(Connection conDBA, Connection conMan ){
+        try{
+            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementMan = conMan.createStatement();
+
+            LOGGER.info("\tGathering data for USER_SESSION TABLE.");
+            ResultSet resultSet = statementDBA.executeQuery(selectUserSessions);
+            StringBuilder values = new StringBuilder();
+            LOGGER.info("Data Gathered");
+
+            LOGGER.info("Inserting data into USER_SESSIONS TABLE.");
+
+            while(resultSet.next()){
+                values.setLength(0);
+                values.append("(null,")
+                        .append(resultSet.getString(1) + ",")
+                        .append(resultSet.getString(2) + ",")
+                        .append(PLICAS + resultSet.getString(3) + PLICASV)
+                        .append("null,"+update_id+")");
+                statementMan.executeUpdate("INSERT INTO USER_SESSION VALUES " + values.toString());
+            }
+            LOGGER.info("Data Inserted.");
+
+            statementDBA.close();
+            statementMan.close();
+        }catch(SQLException e){
+            LOGGER.severe("Unable to popoulate USER_SESSION table.");
         }
     }
 

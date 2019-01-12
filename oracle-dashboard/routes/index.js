@@ -185,4 +185,34 @@ router.get('/role_user/:id',function(req,res){
     })
 });
 
+router.get('/dashboard_pie',function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_size')
+    .then(dados => {
+      res.jsonp({max_size: dados.data.items[0].max_size, free_space: dados.data.items[0].free_space})
+      res.end()
+    })
+    .catch(err => {
+      res.jsonp(err)
+      res.end()
+    })
+})
+
+router.get('/dashboard_sessions_graph', function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_open_sessions')
+    .then(dados => {
+      var sessionsArr = new Array()
+      var tstampArr = new Array()
+      for(i = 0; i < dados.data.items.length; i++){
+        sessionsArr[i] = dados.data.items[i].sessions
+        tstampArr[i] = dados.data.items[i].tstamp.split('T')[1].split('Z')[0]
+      }
+      res.jsonp({sessions: sessionsArr, tstamps: tstampArr})
+      res.end()
+    })
+    .catch(err => {
+      res.jsonp(err)
+      res.end()
+    })
+})
+
 module.exports = router;

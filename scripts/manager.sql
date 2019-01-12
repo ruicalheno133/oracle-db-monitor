@@ -77,6 +77,17 @@ CREATE TABLE "USER"(
       CONSTRAINT acc_status_value CHECK (ACCOUNT_STATUS IN ('OPEN', 'EXPIRED', 'EXPIRED(GRACE)', 'LOCKED(TIMED)', 'LOCKED', 'EXPIRED \& LOCKED(TIMED)', 'EXPIRED(GRACE) \& LOCKED(TIMED)', 'EXPIRED \& LOCKED', 'EXPIRED(GRACE) \& LOCKED'))
 );
 
+CREATE TABLE USER_SESSION(
+    USER_SESSION_KEY NUMBER NOT NULL,
+    USER_KEY NUMBER NOT NULL,
+    SESSION_ID NUMBER NOT NULL,
+    STATUS VARCHAR2(128) NOT NULL,
+    TSTAMP TIMESTAMP NOT NULL,
+    UPDATE_ID NUMBER NOT NULL,
+    CONSTRAINT pk_user_session_key PRIMARY KEY (USER_SESSION_KEY),
+    CONSTRAINT fk_us_user FOREIGN KEY (USER_KEY) REFERENCES "USER" (USER_KEY)
+);
+
 CREATE TABLE USER_TABLESPACE(
       USER_TABLESPACE_KEY NUMBER NOT NULL,
       USER_KEY NUMBER NOT NULL,
@@ -158,6 +169,9 @@ CREATE SEQUENCE datafile_seq
 
 CREATE SEQUENCE user_seq
       START WITH 1 INCREMENT BY 1;
+      
+CREATE SEQUENCE user_session_seq
+      START WITH 1 INCREMENT BY 1;
 
 CREATE SEQUENCE user_tablespace_seq
       START WITH 1 INCREMENT BY 1;
@@ -224,6 +238,18 @@ BEGIN
     :NEW.USER_KEY := user_seq.NEXTVAL;
     :NEW.TSTAMP := sysdate;
   END IF; 
+END;
+/
+
+CREATE OR REPLACE TRIGGER inc_user_session
+BEFORE INSERT ON USER_SESSION
+FOR EACH ROW
+BEGIN
+  IF :NEW.USER_SESSION_KEY IS NULL
+  THEN 
+     :NEW.USER_SESSION_KEY := user_session_seq.NEXTVAL;
+     :NEW.TSTAMP := sysdate;
+  END IF;
 END;
 /
 
@@ -299,6 +325,17 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER join_user_session
+BEFORE INSERT ON USER_SESSION
+FOR EACH ROW
+DECLARE
+    uk NUMBER;
+BEGIN
+    SELECT cu.USER_KEY INTO uk FROM CUR_USER cu WHERE cu.USER_ID = :NEW.USER_KEY;
+    :NEW.USER_KEY := uk;
+END;
+/
+
 CREATE OR REPLACE TRIGGER join_user_tablespace   
 BEFORE INSERT ON USER_TABLESPACE
 FOR EACH ROW
@@ -363,6 +400,10 @@ AS SELECT * FROM DATAFILE t WHERE t.UPDATE_ID = (SELECT MAX(UPDATE_ID) FROM DATA
 CREATE OR REPLACE VIEW CUR_TABLESPACE  
 AS SELECT * FROM "TABLESPACE" t WHERE t.UPDATE_ID = (SELECT MAX(UPDATE_ID) FROM "TABLESPACE");
 
+CREATE OR REPLACE VIEW CUR_SIZE
+AS SELECT SUM(TABLESPACE_SIZE) AS MAX_SIZE, SUM(FREE_SPACE) AS FREE_SPACE FROM CUR_TABLESPACE;
+
+
 CREATE OR REPLACE  VIEW CUR_USER_ROLE 
 AS SELECT * FROM USER_ROLE t WHERE t.UPDATE_ID = (SELECT MAX(UPDATE_ID) FROM USER_ROLE);
 
@@ -371,6 +412,12 @@ AS SELECT * FROM USER_TABLESPACE t WHERE t.UPDATE_ID = (SELECT MAX(UPDATE_ID) FR
 
 CREATE OR REPLACE VIEW CUR_USER  
 AS SELECT * FROM "USER" t WHERE t.UPDATE_ID = (SELECT MAX(UPDATE_ID) FROM "USER");
+
+CREATE OR REPLACE VIEW CUR_USER_SESSION
+AS SELECT * FROM USER_SESSION us WHERE us.UPDATE_ID = (SELECT MAX(UPDATE_ID) FROM USER_SESSION);
+
+CREATE OR REPLACE VIEW CUR_OPEN_SESSIONS
+AS SELECT COUNT(DISTINCT(USER_KEY)) AS SESSIONS, TSTAMP FROM CUR_USER_SESSION GROUP BY TSTAMP;
 
 CREATE OR REPLACE VIEW CUR_DATAFILE
 AS SELECT * FROM DATAFILE t WHERE t.UPDATE_ID = (SELECT MAX(UPDATE_ID) FROM DATAFILE);
@@ -560,8 +607,46 @@ BEGIN
                        p_object_type => 'VIEW',
                        p_object_alias => 'cur_join_tablespace_datafile',
                        p_auto_rest_auth => FALSE);
-
     commit;
+END;
+/
 
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_SIZE',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_size',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_USER_SESSION',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_user_session',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_OPEN_SESSIONS',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_open_sessions',
+                       p_auto_rest_auth => FALSE);
+    commit;
 END;
 /
