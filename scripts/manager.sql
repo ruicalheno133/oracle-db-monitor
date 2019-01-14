@@ -127,6 +127,7 @@ CREATE TABLE SQL_COMMANDS(
       SQL_COMMANDS_KEY NUMBER NOT NULL,
       SQL_ID VARCHAR2(13) NOT NULL,
       SQL_FULLTEXT CLOB NOT NULL,
+      SCHEMA_NAME VARCHAR2(128) NOT NULL,
       TSTAMP TIMESTAMP NOT NULL,
       UPDATE_ID NUMBER NOT NULL,
       CONSTRAINT pk_sql_commands_key PRIMARY KEY (SQL_COMMANDS_KEY)
@@ -431,6 +432,9 @@ AS SELECT * FROM CPU ORDER BY CPU_KEY DESC FETCH FIRST 1 ROWS ONLY;
 CREATE OR REPLACE VIEW CUR_STATUS
 AS SELECT * FROM STATUS ORDER BY STATUS_KEY DESC FETCH FIRST 1 ROWS ONLY;
 
+CREATE OR REPLACE VIEW CUR_SQL_COMMANDS
+AS SELECT * FROM SQL_COMMANDS ORDER BY SQL_COMMANDS_KEY DESC FETCH FIRST 1 ROWS ONLY;
+
 CREATE OR REPLACE VIEW  CUR_JOIN_TABLESPACE_DATAFILE
 AS SELECT d.datafile_id, t.tablespace_id, d.datafile_name, d."SIZE", d.max_size
 FROM cur_datafile d, cur_tablespace t 
@@ -646,6 +650,20 @@ BEGIN
                        p_object => 'CUR_OPEN_SESSIONS',
                        p_object_type => 'VIEW',
                        p_object_alias => 'cur_open_sessions',
+                       p_auto_rest_auth => FALSE);
+    commit;
+END;
+/
+
+
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    ORDS.ENABLE_OBJECT(p_enabled => TRUE,
+                       p_schema => 'MANAGER',
+                       p_object => 'CUR_SQL_COMMANDS',
+                       p_object_type => 'VIEW',
+                       p_object_alias => 'cur_sql_commands',
                        p_auto_rest_auth => FALSE);
     commit;
 END;

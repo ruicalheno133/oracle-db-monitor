@@ -215,4 +215,38 @@ router.get('/dashboard_sessions_graph', function(req,res){
     })
 })
 
+router.get('/sql_commands', function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_sql_commands')
+    .then(dados => {
+      res.jsonp({commands: dados.data.items})
+      res.end()
+    })
+    .catch(err => {
+      //res.jsonp(err)
+      res.end()
+    })
+})
+
+router.get('/dashboard_memory', function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_memory')
+    .then(dados => {
+      res.jsonp({free_space: dados.data.items[0].free_space, used_space: dados.data.items[0].used_space})
+      res.end()
+    })
+    .catch(err => {
+      res.end()
+    })
+})
+
+router.get('/dashboard_cpu', function(req,res){
+  axios.get('http://localhost:8080/ords/manager/cur_cpu')
+    .then(dados => {
+      res.jsonp({idle_time : dados.data.items[0].idle_time, busy_time: dados.data.items[0].busy_time, iowait_time: dados.data.items[0].iowait_time})
+      res.end()
+    })
+    .catch(err => {
+      res.end()
+    })
+})
+
 module.exports = router;

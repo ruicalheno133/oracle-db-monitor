@@ -112,6 +112,9 @@ public class Update extends TimerTask {
             "WHERE ur.grantee = u.username " +
             "AND ur.granted_role = r.role";
 
+    private final String selectSQLCommands = "SELECT sql_id, sql_fulltext, parsing_schema_name " +
+            "FROM v$sql WHERE PARSING_SCHEMA_NAME <> \'MANAGER\'";
+
     /**
      * Cria uma instancia da class update.
      *
@@ -162,6 +165,7 @@ public class Update extends TimerTask {
             populateRoles(conDBA, conMan);
             joinUserRoles(conDBA, conMan);
             populateDatafiles(conDBA, conMan);
+            populateSQL(conDBA,conMan);
             conMan.commit();
 
             LOGGER.info("\tClosed DBA and Manager connections.");
@@ -296,6 +300,12 @@ public class Update extends TimerTask {
         }
     }
 
+    /**
+     * Realiza o povoamento da tabela USER_SESSIONS
+     *
+     * @param conDBA
+     * @param conMan
+     */
     private void popularUserSessions(Connection conDBA, Connection conMan ){
         try{
             final Statement statementDBA = conDBA.createStatement();
@@ -325,6 +335,7 @@ public class Update extends TimerTask {
             LOGGER.severe("Unable to popoulate USER_SESSION table.");
         }
     }
+
 
     /**
      * Une as tabelas Users e Tablespaces.
@@ -593,16 +604,35 @@ public class Update extends TimerTask {
      *
      */
     private void populateSQL(Connection conDBA, Connection conMan) {
-        try {
+        try{
             final Statement statementDBA = conDBA.createStatement();
             final Statement statementMan = conMan.createStatement();
 
-            ResultSet resultSet = statementDBA.executeQuery(selectStatus);
+            LOGGER.info("\tGathering data for SQL_COMMANDS table.");
+            ResultSet resultSet = statementDBA.executeQuery(selectSQLCommands);
+            StringBuilder values = new StringBuilder();
+            LOGGER.info("Data Gathered.");
+
+            LOGGER.info("Inserting data into SQL_COMMANDS table.");
+
+            while(resultSet.next()){
+                String escapedFullText = resultSet.getString(2).replaceAll("'","''");
+                values.setLength(0);
+                values.append("(null,")
+                        .append(PLICAS + resultSet.getString(1) + PLICASV)
+                        .append(PLICAS + escapedFullText + PLICASV)
+                        .append(PLICAS + resultSet.getString(3) + PLICASV)
+                        .append("null,"+update_id+")");
+                statementMan.executeUpdate("INSERT INTO SQL_COMMANDS VALUES " + values.toString());
+            }
+
+            LOGGER.info("Data Inserted");
 
             statementDBA.close();
             statementMan.close();
-        } catch (SQLException e) {
-            LOGGER.severe("Unable to populate SQLCOMMANDS table.");
+        } catch(SQLException e){
+            e.printStackTrace();
+            LOGGER.severe("Unable to populate SQL_COMMANDS table.");
         }
     }
 
