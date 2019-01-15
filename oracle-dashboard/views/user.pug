@@ -14,16 +14,16 @@ block content
                             b User Info
                         table.w3-table
                             tr
-                                td Name
+                                th Name
                                 td= user.username
                             tr
-                                td Status
+                                th Status
                                 td= user.account_status
                             tr
-                                td Default Tablespace
+                                th Default Tablespace
                                 td= user.default_tablespace
                             tr
-                                td Last login
+                                th Last login
                                 if (user.last_login != "")
                                     td= user.last_login
                                 else 

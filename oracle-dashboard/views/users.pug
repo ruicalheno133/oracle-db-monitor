@@ -23,7 +23,10 @@ block content
                             td= user.account_status
                             td= user.default_tablespace
                             td= user.temporary_tablespace
-                            td= user.last_login
+                            if user.last_login
+                                td= user.last_login
+                            else 
+                                td Unknown
                             td
                                 a(href="/users/" + user.user_id)
                                     i.fas.fa-eye

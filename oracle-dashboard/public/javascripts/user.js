@@ -4,11 +4,12 @@ $(()=>{
     ajaxGET('role_user', 'role_user_table', window.location.pathname.split('/')[2])
     ajaxGET('tablespace_datafiles','tablespace_datafiles_table', window.location.pathname.split('/')[2])
     ajaxGET('tablespace_user','tablespace_user_table', window.location.pathname.split('/')[2])
-    ajaxGETpie('datafiles_pie','datafile_pie', window.location.pathname.split('/')[2])
-    ajaxGETDashboardPie('dashboard_pie','dashboard_pie',window.location.pathname.split('/')[2])
-    ajaxGETDashboardSessionGraph('dashboard_session_graph','dashboard_session_graph',window.location.pathname.split('/'[2]))
-    ajaxGETMemoryPie('dashboard_memory','dashboard_memory',window.location.pathname.split('/')[2])
-    ajaxGETCPUPie('dashboard_cpu','dashboard_cpu',window.location.pathname.split('/')[2])
+    ajaxGETDatafilepie(window.location.pathname.split('/')[2]);
+    ajaxGETStoragePie();
+    ajaxGETDashboardSessionGraph();
+    ajaxGETMemoryPie();
+    ajaxGETCPUBarGraph();
+    ajaxGETstatus();
 
     var sessions;
     var users = new Array();
@@ -18,7 +19,7 @@ $(()=>{
         for(i=0; i < values.length; i++){
             users.push(values[i])
         }
-        while(users.length >= 5){
+        while(users.length >= 10){
             (users).shift();
         }
     }
@@ -29,7 +30,7 @@ $(()=>{
         for(i=0; i < values.length; i++){
             tstamps.push(values[i])
         }
-        while(tstamps.length >= 5){
+        while(tstamps.length >= 10){
             (tstamps).shift();
         }
     }
@@ -47,13 +48,27 @@ $(()=>{
           });
     }
 
-    function ajaxGETpie (req, table, id) {
+    function ajaxGETstatus () {
         $.ajax({
             type: "GET",
-            url: `/${req}/${id}`,
+            url: `/status`,
+            success: result => {     
+                $(`#statusTable`).empty()
+                                 .html(result);
+            },
+            error: error => {
+
+            }
+          });
+    }
+
+    function ajaxGETDatafilepie ( id) {
+        $.ajax({
+            type: "GET",
+            url: `/datafiles_pie/${id}`,
             success: result => {    
                 c3.generate({
-                    bindto: '.' + table,
+                    bindto: '.datafile_pie',
                     data: {
                         columns: [
                             ['Free Space', result.max_size - result.size],
@@ -76,13 +91,13 @@ $(()=>{
           });
     }
 
-    function ajaxGETDashboardPie(req,table,id){
+    function ajaxGETStoragePie(){
         $.ajax({
             type: "GET",
-            url: `/dashboard_pie`,
+            url: `/storage_pie`,
             success: result => {
                 c3.generate({
-                    bindto: '.dashboard_pie',
+                    bindto: '.storage_pie',
                     data: {
                         columns: [
                             ['Free Space', result.free_space],
@@ -105,7 +120,7 @@ $(()=>{
         });
     }
 
-    function ajaxGETMemoryPie(req,table,id){
+    function ajaxGETMemoryPie(){
         $.ajax({
             type: "GET",
             url: `/dashboard_memory`,
@@ -134,8 +149,7 @@ $(()=>{
         })
     }
 
-
-    function ajaxGETCPUPie(req,table,id){
+    function ajaxGETCPUBarGraph(){
         $.ajax({
             type: "GET",
             url: `/dashboard_cpu`,
@@ -148,7 +162,7 @@ $(()=>{
                             ['Busy Time', result.busy_time],
                             ['IOWait Time', result.iowait_time]
                         ],
-                        type:'pie'
+                        type:'bar',
                     },
                     tooltip: {
                         format: {
@@ -165,7 +179,7 @@ $(()=>{
         })
     }
 
-    function ajaxGETDashboardSessionGraph(req,table,id){
+    function ajaxGETDashboardSessionGraph(){
         $.ajax({
             type: "GET",
             url: `/dashboard_sessions_graph`,
@@ -193,8 +207,11 @@ $(()=>{
         })
     }
 
+    function refreshStatus() {
+        ajaxGETstatus(); 
+    }
 
-    setInterval(function(){
+    function refreshSessionsGraph() {
         $.ajax({
             type: "GET",
             url: `/dashboard_sessions_graph`,
@@ -209,19 +226,45 @@ $(()=>{
                 });
             }
         })
-    },5000);
+    }
 
-    setInterval(function(){
+    function refreshSQLCommands() {
         $.ajax({
             type: "GET",
             url: `/sql_commands`,
             success: (result) => {
                 $('#sql_commands').empty()
                 $('#sql_commands').append("<tr><th>Comando</th><th>SQL ID</th><th>Schema</th></tr>")
-                for(i = 0; i < result.commands.length && i < 5 ; i++){
-                    $('#sql_commands').append("<tr><td>"+result.commands[i].sql_fulltext+"</td><td>"+result.commands[i].sql_id+"</td><td>"+result.commands[i].schema_name+"</td></tr>")
+                for(i = 0; i < result.commands.length && i < 4 ; i++){
+                    $('#sql_commands').append("<tr><td width=\"60%\" height=\"60\"><div style=\"height: 100%; overflow:scroll;\">"+result.commands[i].sql_fulltext+"</div></td><td>"+result.commands[i].sql_id+"</td><td>"+result.commands[i].schema_name+"</td></tr>")
                 }
             }
         })
-    },5000)
+    }
+
+    function refreshCPUBarGraph() {
+        ajaxGETCPUBarGraph();
+    }
+
+    function refreshMemoryPie() {
+        ajaxGETMemoryPie();
+    }
+
+    function refreshStoragePie() {
+        ajaxGETStoragePie();
+    }
+
+    function refreshPage() {
+        refreshStatus();
+        //refreshSessionsGraph();
+        ajaxGETDashboardSessionGraph();
+        refreshSQLCommands();
+        refreshCPUBarGraph();
+        refreshMemoryPie();
+        refreshStoragePie();
+    }
+
+    setInterval(function() {
+        refreshPage();
+    }, 10000)
 });

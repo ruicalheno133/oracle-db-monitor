@@ -16,9 +16,9 @@ router.get('/', function(req, res) {
 
 /* GET status */
 router.get('/status', function(req, res) {
-    axios.get('http://localhost:8080/ords/manager/status?q={"$orderby":{"status_key":"DESC"}}&limit=1')
+    axios.get('http://localhost:8080/ords/manager/cur_status')
          .then(dados => {
-            res.render('status', {status: dados.data.items  })
+            res.render('status', {status: dados.data.items[0]})
          })
          .catch(err => {
            res.jsonp(err)
@@ -185,7 +185,7 @@ router.get('/role_user/:id',function(req,res){
     })
 });
 
-router.get('/dashboard_pie',function(req,res){
+router.get('/storage_pie',function(req,res){
   axios.get('http://localhost:8080/ords/manager/cur_size')
     .then(dados => {
       res.jsonp({max_size: dados.data.items[0].max_size, free_space: dados.data.items[0].free_space})

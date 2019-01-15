@@ -1,61 +1,47 @@
 extends layout
 block content
-      .w3-col.m10
+      .w3-col.m10(style="height: 100%; overflow: scroll")
         .w3-row
-          .w3-col.m4
-            .w3-card-4.w3-white.w3-margin
-              header.w3-container 
-                h6 
-                  b Database Info
-                table.w3-table
-                  tr
-                    td Name
-                    td= status.database_name
-                  tr
-                    td Platform 
-                    td= status.platform_name
-                  tr
-                    td Uptime 
-                    td #{Math.round(status.uptime)} minutes
-                  tr
-                    td Archiver
-                    td= status.archiver
-            .w3-card-4.w3-white.w3-margin
-              header.w3-container 
-                h6 
-                  b Storage
-                .dashboard_pie
-          .w3-col.m8.graph
-            .w3-card-4.w3-white.w3-margin
-              header.w3-container
-                h6 
-                  b Users Connected
-                .dashboard_sessions_graph
-          .w3-col.m8
-                .w3-card-4.w3-white.w3-margin
+          .w3-col.m12
+            .w3-card-4.w3-margin.w3-white
+              .w3-row
+                .w3-col.m4
                     header.w3-container 
+                      h6 
+                        b Database Info
+                      table.w3-table(id="statusTable")
+
+                .w3-col.m8.graph
+                    header.w3-container
+                      h6 
+                        b Users Connected
+                      .dashboard_sessions_graph
+            .w3-col.m4
+              .w3-card-4.w3-white.w3-margin
+                header.w3-container
+                  h6 
+                    b Memory
+                  .dashboard_memory_pie
+            .w3-col.m4
+              .w3-card-4.w3-white.w3-margin
+                header.w3-container
+                  h6 
+                    b CPU
+                  .dashboard_cpu_pie
+            .w3-col.m4
+              .w3-card-4.w3-white.w3-margin
+                header.w3-container 
+                  h6 
+                    b Storage
+                  .storage_pie
+            .w3-col.m12
+              .w3-card-4.w3-white.w3-margin
+                  header.w3-container 
                         h6 
-                            b SQL Commands
-                        table.w3-table#sql_commands
-                              tr
-                                  th Comando
-                                  th SQL ID
-                                  th Schema
-        .w3-row
-          .w3-col.m4
-            .w3-card-4.w3-white.w3-margin
-              header.w3-container
-                h6 
-                  b Memory
-                .dashboard_memory_pie
-          .w3-col.m4
-            .w3-card-4.w3-white.w3-margin
-              header.w3-container
-                h6 
-                  b CPU
-                .dashboard_cpu_pie
-          .w3-col.m4
-            .w3-card-4.w3-white.w3-margin
-              header.w3-container 
-                h6 SQL Errors
-          .w3-col.m3
+                            b Last SQL Commands
+                  .w3-container(style="overflow: scroll;height: 70%;")
+                      table.w3-table.w3-bordered#sql_commands
+                        tr
+                          th Comando
+                          th SQL ID
+                          th Schema

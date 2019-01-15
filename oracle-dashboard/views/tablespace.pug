@@ -14,19 +14,19 @@ block content
                             b Tablespace Info
                         table.w3-table
                             tr
-                                td Name
+                                th Name
                                 td= tablespace.tablespace_name
                             tr
-                                td Size (Mb)
+                                th Size (Mb)
                                 if (tablespace.tablespace_size == null) 
                                     td Unknown
                                 else 
                                     td= tablespace.tablespace_size
                             tr
-                                td Free Space
+                                th Free Space
                                 td= tablespace.free_space
                             tr
-                                td Status
+                                th Status
                                 td
                                     .w3-text-green= tablespace.status
             .w3-col.m8

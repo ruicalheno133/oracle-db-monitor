@@ -1,7 +1,24 @@
-extends layout
-
-block content 
-    each s in status
-        p status_key: #{s.status_key}
-        p uptime: #{s.uptime}
-        p database_name: #{s.database_name}
+tr
+  th Name
+  td= status.database_name
+tr
+  th Type
+  td= status.database_type
+tr
+  th Instance
+  td= status.instance_name
+tr
+  th Platform 
+  td= status.platform_name
+tr
+  th Uptime 
+  td #{Math.round(status.uptime)} minutes
+tr
+  th Thread #
+  td= status['thread#']
+tr
+  th Archiver
+  td= status.archiver
+tr 
+  th Last Update 
+  td= moment(Date.now()).format('DD/MM/YYYY HH:mm:ss')

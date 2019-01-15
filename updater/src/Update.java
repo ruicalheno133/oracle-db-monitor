@@ -17,7 +17,7 @@ public class Update extends TimerTask {
     private final char PLICAS = '\'';
     private final String PLICASV = "\',";
 
-    private int update_id = 32;
+    private int update_id = 1   ;
 
     private final String selectStatus = "SELECT ((sysdate - i.startup_time ) * 24 * 60) AS \"UPTIME\", "
             + "i.database_type, "
@@ -142,51 +142,65 @@ public class Update extends TimerTask {
     }
 
     /**
-     * Estabelece a conexão às Bases de Dados 'Manager' e 'DBA'.
-     * Recolhe os dados das tabelas presentes em 'DBA' e
+     * Estabelece a conexão às Bases de Dados 'Manager' e 'Sys'.
+     * Recolhe os dados das tabelas presentes em 'Sys' e
      * coloca-os nas tabelas presentes em 'Manager'.
      *
      */
     public void populate(){
+        Connection conSys = null;
+        Connection conMan = null;
         try {
-            final Connection conDBA = Connect.connect(true);
-            final Connection conMan = Connect.connect(false);
+            conSys = Connect.connect(true);
+            conMan = Connect.connect(false);
 
-            LOGGER.info("\tEstablished DBA and Manager connections.");
+            LOGGER.info("\tEstablished Sys and Manager connections.");
 
             conMan.setAutoCommit(false);
-            populateStatus(conDBA, conMan);
-            populateCPU(conDBA, conMan);
-            populateMemory(conDBA, conMan);
-            populateUsers(conDBA, conMan);
-            popularUserSessions(conDBA,conMan);
-            populateTablespaces(conDBA, conMan);
-            joinUserTablespaces(conDBA, conMan);
-            populateRoles(conDBA, conMan);
-            joinUserRoles(conDBA, conMan);
-            populateDatafiles(conDBA, conMan);
-            populateSQL(conDBA,conMan);
+            populateStatus(conSys, conMan);
+            populateCPU(conSys, conMan);
+            populateMemory(conSys, conMan);
+            populateUsers(conSys, conMan);
+            populateSessions(conSys,conMan);
+            populateTablespaces(conSys, conMan);
+            joinUserTablespaces(conSys, conMan);
+            populateRoles(conSys, conMan);
+            joinUserRoles(conSys, conMan);
+            populateDatafiles(conSys, conMan);
+            populateSQL(conSys,conMan);
             conMan.commit();
 
+            LOGGER.info("Commited Changes.");
             LOGGER.info("\tClosed DBA and Manager connections.");
 
-            conDBA.close();
+            conSys.close();
             conMan.close();
         } catch (SQLException e) {
             LOGGER.severe("Unable to establish connections.");
+        } catch (UpdateFailedException e) {
+            try {
+                conMan.rollback();
+                conSys.close();
+                conMan.close();
+            } catch (SQLException rbe) {
+
+            } finally {
+                LOGGER.severe(e.getMessage());
+                LOGGER.info("Rolling back");
+            }
         }
     }
 
     /**
      * Realiza o povoamento da tabela DATAFILES.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateDatafiles(Connection conDBA, Connection conMan) {
+    private void populateDatafiles(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for DATAFILE TABLE.");
@@ -216,8 +230,7 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate DATAFILE table.");
+            throw new UpdateFailedException("Unable to populate DATAFILE table.");
         }
     }
 
@@ -225,13 +238,13 @@ public class Update extends TimerTask {
      * Une as tabelas USERS e ROLES.
      * Realiza o povoamento da tabela USER_ROLE.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void joinUserRoles(Connection conDBA, Connection conMan) {
+    private void joinUserRoles(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for USER_ROLE TABLE.");
@@ -255,21 +268,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate USER_ROLE table.");
+            throw new UpdateFailedException("Unable to populate USER_ROLE table.");
         }
     }
-    
+
     /**
      * Realiza o povoamento da tabela ROLES.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateRoles(Connection conDBA, Connection conMan) {
+    private void populateRoles(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for ROLE TABLE.");
@@ -295,28 +307,27 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate ROLE table.");
+            throw new UpdateFailedException("Unable to populate ROLE table.");
         }
     }
 
     /**
-     * Realiza o povoamento da tabela USER_SESSIONS
+     * Realiza o povoamento da tabela SESSION
      *
-     * @param conDBA
+     * @param conSys
      * @param conMan
      */
-    private void popularUserSessions(Connection conDBA, Connection conMan ){
+    private void populateSessions(Connection conSys, Connection conMan ) throws UpdateFailedException {
         try{
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
-            LOGGER.info("\tGathering data for USER_SESSION TABLE.");
+            LOGGER.info("\tGathering data for SESSION TABLE.");
             ResultSet resultSet = statementDBA.executeQuery(selectUserSessions);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
-            LOGGER.info("Inserting data into USER_SESSIONS TABLE.");
+            LOGGER.info("Inserting data into SESSION TABLE.");
 
             while(resultSet.next()){
                 values.setLength(0);
@@ -325,14 +336,14 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(2) + ",")
                         .append(PLICAS + resultSet.getString(3) + PLICASV)
                         .append("null,"+update_id+")");
-                statementMan.executeUpdate("INSERT INTO USER_SESSION VALUES " + values.toString());
+                statementMan.executeUpdate("INSERT INTO \"SESSION\" VALUES " + values.toString());
             }
             LOGGER.info("Data Inserted.");
 
             statementDBA.close();
             statementMan.close();
         }catch(SQLException e){
-            LOGGER.severe("Unable to popoulate USER_SESSION table.");
+                throw new UpdateFailedException("Unable to populate SESSION table. ");
         }
     }
 
@@ -341,13 +352,13 @@ public class Update extends TimerTask {
      * Une as tabelas Users e Tablespaces.
      * Realiza o povoamento da tabela USER_TABLESPACE.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void joinUserTablespaces(Connection conDBA, Connection conMan) {
+    private void joinUserTablespaces(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for USER_TABLESPACE TABLE.");
@@ -373,21 +384,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate USER_TABLESPACE table.");
+            throw new UpdateFailedException("Unable to populate USER_TABLESPACE table.");
         }
     }
 
     /**
      * Realiza o povoamento da tabela TABLESPACES.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateTablespaces(Connection conDBA, Connection conMan) {
+    private void populateTablespaces(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for TABLESPACE TABLE.");
@@ -422,21 +432,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate TABLESPACE table.");
+            throw new UpdateFailedException("Unable to populate TABLESPACE table.");
         }
     }
 
     /**
      * Realiza o povoamento da tabela USERS.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateUsers(Connection conDBA, Connection conMan) {
+    private void populateUsers(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            final Statement statementDBA = conSys.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for USER TABLE.");
@@ -451,16 +460,16 @@ public class Update extends TimerTask {
                         .append(resultSet.getString(1) + ",")
                         .append(PLICAS + resultSet.getString(2) + PLICASV)
                         .append(PLICAS + resultSet.getString(3) + PLICASV);
-                        if (resultSet.getString(4) != null) values.append("TO_DATE(" + PLICAS + resultSet.getString(4) + PLICASV + "'YYYY-MM-DD HH24:MI:SS'),");
-                        else values.append("null,");
-                        values.append(PLICAS + resultSet.getString(5) + PLICASV)
+                if (resultSet.getString(4) != null) values.append("TO_DATE(" + PLICAS + resultSet.getString(4) + PLICASV + "'YYYY-MM-DD HH24:MI:SS'),");
+                else values.append("null,");
+                values.append(PLICAS + resultSet.getString(5) + PLICASV)
                         .append(PLICAS + resultSet.getString(6) + PLICASV)
                         .append(PLICAS + resultSet.getString(7) + PLICASV);
                 if (resultSet.getString(8) != null) values.append("TO_DATE(" + PLICAS + resultSet.getString(8) + PLICASV + "'YYYY-MM-DD HH24:MI:SS'),");
                 else values.append("null,");
                 if (resultSet.getString(9) != null) values.append("TO_TIMESTAMP_TZ(" + PLICAS + resultSet.getString(9) + PLICASV + "'YYYY-MM-DD HH24:MI:SS.FF TZR'),");
                 else values.append("null,");
-                        values.append("null," + update_id + ")");
+                values.append("null," + update_id + ")");
                 statementMan.executeUpdate("INSERT INTO \"USER\" VALUES " + values.toString());
             }
 
@@ -469,21 +478,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate USER table.");
+            throw new UpdateFailedException("Unable to populate USER table.");
         }
     }
 
     /**
      * Realiza o povoamento da tabela STATUS.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateStatus(Connection conDBA, Connection conMan){
+    private void populateStatus(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for STATUS TABLE.");
@@ -513,20 +521,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            LOGGER.severe("Unable to populate STATUS table.");
+            throw new UpdateFailedException("Unable to populate STATUS table.");
         }
     }
-    
+
     /**
      * Realiza o povoamento da tabela CPU.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateCPU(Connection conDBA, Connection conMan) {
+    private void populateCPU(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for CPU TABLE.");
@@ -553,20 +561,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            LOGGER.severe("Unable to populate CPU table.");
+            throw new UpdateFailedException("Unable to populate CPU table.");
         }
     }
 
     /**
      * Realiza o povoamento da tabela MEMORY.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateMemory(Connection conDBA, Connection conMan) {
+    private void populateMemory(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for MEMORY TABLE.");
@@ -592,20 +600,20 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch (SQLException e) {
-            LOGGER.severe("Unable to populate MEMORY table.");
+            throw new UpdateFailedException("Unable to populate MEMORY table.");
         }
     }
 
     /**
      * Realiza o povoamento da tabela SQLCOMMANDS.
      *
-     * @param conDBA Conexão à Base de Dados DBA.
+     * @param conSys Conexão à Base de Dados Sys.
      * @param conMan Conexão à Base de Dados Manager.
      *
      */
-    private void populateSQL(Connection conDBA, Connection conMan) {
+    private void populateSQL(Connection conSys, Connection conMan) throws UpdateFailedException {
         try{
-            final Statement statementDBA = conDBA.createStatement();
+            final Statement statementDBA = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for SQL_COMMANDS table.");
@@ -631,8 +639,7 @@ public class Update extends TimerTask {
             statementDBA.close();
             statementMan.close();
         } catch(SQLException e){
-            e.printStackTrace();
-            LOGGER.severe("Unable to populate SQL_COMMANDS table.");
+                throw new UpdateFailedException("Unable to populate SQL_COMMANDS table.");
         }
     }
 

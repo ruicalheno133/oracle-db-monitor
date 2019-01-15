@@ -5,7 +5,8 @@ block content
         header.w3-container.w3-border-bottom
             h1 
                 i.fas.fa-file
-                |  Datafile #{datafile.datafile_name}
+                |  Datafile 
+                span(style="font-size: 0.5em;") #{datafile.datafile_name}
         .w3-container.w3-section
             .w3-col.m12
                 .w3-card-4.w3-white.w3-margin
@@ -17,8 +18,15 @@ block content
                                 th Name 
                                 td= datafile.datafile_name
                             tr 
-                                th falta por mais info
-            .w3-col.m12 
+                                th Belongs to
+                                td= datafile.tablespace_name
+                            tr 
+                                th Status
+                                td= datafile.status
+                            tr 
+                                th Auto Extensible 
+                                td= datafile.auto_extensible
+            .w3-col.m12
                 .w3-card-4.w3-white.w3-margin
                     header.w3-container 
                         h6 
