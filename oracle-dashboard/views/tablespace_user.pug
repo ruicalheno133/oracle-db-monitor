@@ -11,7 +11,7 @@ table.w3-table.w3-border.w3-bordered.w3-hoverable
                 td Unlimited
             else
                 td= entrada.quota
-            td= entrada.used_quota
+            td= entrada.used_quota.toFixed(2)
             td
                 a(href="/users/" + entrada.user_id)
                     i.fas.fa-eye

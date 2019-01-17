@@ -7,8 +7,8 @@ table.w3-table.w3-border.w3-bordered.w3-hoverable
     for datafile in datafiles
         tr 
             td= datafile.datafile_name 
-            td= datafile.size 
-            td= datafile.max_size
+            td= datafile.size.toFixed(2)
+            td= datafile.max_size.toFixed(2)
             td
                 a(href="/datafiles/" + datafile.datafile_id)
                     i.fas.fa-eye

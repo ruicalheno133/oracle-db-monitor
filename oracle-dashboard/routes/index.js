@@ -4,14 +4,7 @@ var axios = require('axios');
 
 /* GET dashboard main page */
 router.get('/', function(req, res) {
-  axios.get('http://localhost:8080/ords/manager/cur_status')
-  .then(dados => {
-    res.render('index', {status: dados.data.items[0]})
-  })
-  .catch(err => {
-    res.jsonp(err)
-    res.end()
-  })
+    res.render('dashboard');
 });
 
 /* GET status */
@@ -204,7 +197,7 @@ router.get('/dashboard_sessions_graph', function(req,res){
       var tstampArr = new Array()
       for(i = 0; i < dados.data.items.length; i++){
         sessionsArr[i] = dados.data.items[i].sessions
-        tstampArr[i] = dados.data.items[i].tstamp.split('T')[1].split('Z')[0]
+        tstampArr[i] = dados.data.items[i].tstamp
       }
       res.jsonp({sessions: sessionsArr, tstamps: tstampArr})
       res.end()

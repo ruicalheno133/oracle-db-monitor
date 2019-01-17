@@ -7,28 +7,42 @@ block content
                 i.fas.fa-user 
                 |  User #{user.username}
         .w3-container(style="height:90%;")
-            .w3-col.m4
+            .w3-col.m6
                 .w3-card-4.w3-white.w3-margin
                     header.w3-container 
                         h6 
                             b User Info
                         table.w3-table
-                            tr
-                                th Name
-                                td= user.username
-                            tr
-                                th Status
-                                td= user.account_status
-                            tr
-                                th Default Tablespace
-                                td= user.default_tablespace
-                            tr
-                                th Last login
-                                if (user.last_login != "")
-                                    td= user.last_login
-                                else 
-                                    td Unknow
-            .w3-col.m8
+                            tr 
+                                td 
+                                    table.w3-table(style="border-right: 1px solid black;")
+                                        tr
+                                            th Name
+                                            td= user.username
+                                        tr
+                                            th Status
+                                            td= user.account_status
+                                        tr
+                                            th Default Tablespace
+                                            td= user.default_tablespace
+                                        tr
+                                            th Temporary Tablespace
+                                            td= user.temporary_tablespace
+                                td 
+                                    table.w3-table
+                                        tr
+                                            th Profile
+                                            td= user.profile
+                                        tr
+                                            th Created
+                                            td= user.created
+                                        tr
+                                            th Last login
+                                            if user.last_login
+                                                td= user.last_login
+                                            else 
+                                                td Unknow
+            .w3-col.m6
                 .w3-card-4.w3-white.w3-margin
                     header.w3-container 
                         h6 
@@ -39,5 +53,5 @@ block content
                     header.w3-container
                         h6 
                             b User's Roles
-                    .user_role_table(style="height:90%; overflow: scroll;")
+                    .user_role_table(style="height:90%; overflow: auto;")
 

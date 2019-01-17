@@ -19,12 +19,15 @@ block content
                             tr
                                 th Size (Mb)
                                 if (tablespace.tablespace_size == null) 
-                                    td Unknown
+                                    td Unknown  
                                 else 
                                     td= tablespace.tablespace_size
                             tr
-                                th Free Space
-                                td= tablespace.free_space
+                                th Free Space (Mb)
+                                td= tablespace.free_space.toFixed(2)
+                            tr
+                                th Contents
+                                td= tablespace.contents
                             tr
                                 th Status
                                 td

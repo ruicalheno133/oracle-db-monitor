@@ -1,6 +1,6 @@
-extends layout
+extends dashboard_layout
 block content
-      .w3-col.m10(style="height: 100%; overflow: scroll")
+      .w3-col.m10(style="height: 100%; overflow: auto;")
         .w3-row
           .w3-col.m12
             .w3-card-4.w3-margin.w3-white
@@ -39,7 +39,7 @@ block content
                   header.w3-container 
                         h6 
                             b Last SQL Commands
-                  .w3-container(style="overflow: scroll;height: 70%;")
+                  .w3-container(style="overflow: auto;height: 70%;")
                       table.w3-table.w3-bordered#sql_commands
                         tr
                           th Comando

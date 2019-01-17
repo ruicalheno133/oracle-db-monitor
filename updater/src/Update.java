@@ -17,7 +17,7 @@ public class Update extends TimerTask {
     private final char PLICAS = '\'';
     private final String PLICASV = "\',";
 
-    private int update_id = 1   ;
+    private int update_id = 1 ;
 
     private final String selectStatus = "SELECT ((sysdate - i.startup_time ) * 24 * 60) AS \"UPTIME\", "
             + "i.database_type, "
@@ -200,11 +200,11 @@ public class Update extends TimerTask {
      */
     private void populateDatafiles(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for DATAFILE TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectDatafiles);
+            ResultSet resultSet = statementSys.executeQuery(selectDatafiles);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -227,7 +227,7 @@ public class Update extends TimerTask {
 
             LOGGER.info("Data Inserted");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate DATAFILE table.");
@@ -244,11 +244,11 @@ public class Update extends TimerTask {
      */
     private void joinUserRoles(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for USER_ROLE TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectUserRoles);
+            ResultSet resultSet = statementSys.executeQuery(selectUserRoles);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -265,7 +265,7 @@ public class Update extends TimerTask {
 
             LOGGER.info("Data Inserted");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate USER_ROLE table.");
@@ -281,11 +281,11 @@ public class Update extends TimerTask {
      */
     private void populateRoles(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for ROLE TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectRoles);
+            ResultSet resultSet = statementSys.executeQuery(selectRoles);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -304,7 +304,7 @@ public class Update extends TimerTask {
 
             LOGGER.info("Data Inserted");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate ROLE table.");
@@ -319,11 +319,11 @@ public class Update extends TimerTask {
      */
     private void populateSessions(Connection conSys, Connection conMan ) throws UpdateFailedException {
         try{
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for SESSION TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectUserSessions);
+            ResultSet resultSet = statementSys.executeQuery(selectUserSessions);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -340,10 +340,10 @@ public class Update extends TimerTask {
             }
             LOGGER.info("Data Inserted.");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         }catch(SQLException e){
-                throw new UpdateFailedException("Unable to populate SESSION table. ");
+            throw new UpdateFailedException("Unable to populate SESSION table. ");
         }
     }
 
@@ -358,11 +358,11 @@ public class Update extends TimerTask {
      */
     private void joinUserTablespaces(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for USER_TABLESPACE TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectUserTablespaces);
+            ResultSet resultSet = statementSys.executeQuery(selectUserTablespaces);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -381,7 +381,7 @@ public class Update extends TimerTask {
 
             LOGGER.info("Data Inserted");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate USER_TABLESPACE table.");
@@ -397,11 +397,11 @@ public class Update extends TimerTask {
      */
     private void populateTablespaces(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for TABLESPACE TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectTablespaces);
+            ResultSet resultSet = statementSys.executeQuery(selectTablespaces);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -429,7 +429,7 @@ public class Update extends TimerTask {
             LOGGER.info("Data Inserted");
 
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate TABLESPACE table.");
@@ -445,11 +445,11 @@ public class Update extends TimerTask {
      */
     private void populateUsers(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            final Statement statementSys = conSys.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for USER TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectUsers);
+            ResultSet resultSet = statementSys.executeQuery(selectUsers);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -475,7 +475,7 @@ public class Update extends TimerTask {
 
             LOGGER.info("Data Inserted");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate USER table.");
@@ -491,11 +491,11 @@ public class Update extends TimerTask {
      */
     private void populateStatus(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for STATUS TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectStatus);
+            ResultSet resultSet = statementSys.executeQuery(selectStatus);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -518,7 +518,7 @@ public class Update extends TimerTask {
 
             statementMan.executeUpdate("INSERT INTO STATUS VALUES " + values.toString());
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate STATUS table.");
@@ -534,11 +534,11 @@ public class Update extends TimerTask {
      */
     private void populateCPU(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for CPU TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectCPU);
+            ResultSet resultSet = statementSys.executeQuery(selectCPU);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -558,7 +558,7 @@ public class Update extends TimerTask {
 
             statementMan.executeUpdate("INSERT INTO CPU VALUES " + values.toString());
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate CPU table.");
@@ -574,11 +574,11 @@ public class Update extends TimerTask {
      */
     private void populateMemory(Connection conSys, Connection conMan) throws UpdateFailedException {
         try {
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for MEMORY TABLE.");
-            ResultSet resultSet = statementDBA.executeQuery(selectMemory);
+            ResultSet resultSet = statementSys.executeQuery(selectMemory);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered");
 
@@ -597,7 +597,7 @@ public class Update extends TimerTask {
 
             statementMan.executeUpdate("INSERT INTO MEMORY VALUES " + values.toString());
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch (SQLException e) {
             throw new UpdateFailedException("Unable to populate MEMORY table.");
@@ -613,11 +613,11 @@ public class Update extends TimerTask {
      */
     private void populateSQL(Connection conSys, Connection conMan) throws UpdateFailedException {
         try{
-            final Statement statementDBA = conSys.createStatement();
+            final Statement statementSys = conSys.createStatement();
             final Statement statementMan = conMan.createStatement();
 
             LOGGER.info("\tGathering data for SQL_COMMANDS table.");
-            ResultSet resultSet = statementDBA.executeQuery(selectSQLCommands);
+            ResultSet resultSet = statementSys.executeQuery(selectSQLCommands);
             StringBuilder values = new StringBuilder();
             LOGGER.info("Data Gathered.");
 
@@ -636,10 +636,10 @@ public class Update extends TimerTask {
 
             LOGGER.info("Data Inserted");
 
-            statementDBA.close();
+            statementSys.close();
             statementMan.close();
         } catch(SQLException e){
-                throw new UpdateFailedException("Unable to populate SQL_COMMANDS table.");
+            throw new UpdateFailedException("Unable to populate SQL_COMMANDS table.");
         }
     }
 

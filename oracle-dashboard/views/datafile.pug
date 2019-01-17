@@ -18,6 +18,9 @@ block content
                                 th Name 
                                 td= datafile.datafile_name
                             tr 
+                                th Size (Mb)
+                                td= datafile.size.toFixed(2)
+                            tr 
                                 th Belongs to
                                 td= datafile.tablespace_name
                             tr 
